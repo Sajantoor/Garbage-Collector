@@ -19,7 +19,9 @@ void * operator new(std::size_t size, std::size_t alloc) {
     }
 
     // create new garbage collector
-    GarbageCollector* gc = new GarbageCollector();
+    GarbageCollector* gc = GarbageCollector::getInstance();
+    std::cout << "Getting instance of gc " << gc << std::endl;
+
     gc->allocate(pointer, size);
 
     return pointer;
@@ -29,7 +31,15 @@ void * operator new(std::size_t size, std::size_t alloc) {
  * Overide the delete operator globally for garbage collection.
  * This is optional but more performant. 
  */ 
-void operator delete(void * pointer) {
+void operator delete(void * pointer, std::size_t alloc) {
+    if (pointer == nullptr) 
+        return;
+
     std::cout << "Freeing at " << pointer << std::endl;
+    // deallocate from garbage collector
+    GarbageCollector* gc = GarbageCollector::getInstance(); 
+    std::cout << "Getting instance of gc del " << gc << std::endl;
+
     free(pointer);
+    gc->deallocate(pointer);
 }

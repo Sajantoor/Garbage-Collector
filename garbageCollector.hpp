@@ -5,17 +5,25 @@
 #include <map> 
 
 class GarbageCollector { 
-    public: 
-        // // constructor -> Singleton design 
+    private: 
+        // private constructor -> Singleton design 
         GarbageCollector();  
+        static GarbageCollector* instance;
+
+    public: 
+        static GarbageCollector* getInstance() {
+            if (instance == nullptr)
+                    instance = new GarbageCollector();
+            return instance;
+        }
         // destructor
         ~GarbageCollector(); 
 
         // allocate memory  
         void allocate(void * pointer, std::size_t size); 
          // when delete is called deallocate memory from the garbage collector
-        void deallocate();
-
+        void deallocate(void * pointer);
+        
         // run mark and sweep algorithm and garbage collect.
         void collect(); 
 
