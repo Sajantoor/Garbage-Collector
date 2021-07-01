@@ -5,6 +5,6 @@
 #include "GarbageCollector.hpp"
 
 extern void * operator new(std::size_t size, std::size_t alloc);
-extern void operator delete(void * pointer, std::size_t alloc);
+// extern void operator delete(void * pointer, std::size_t alloc);
 
 #endif // OVERRIDES_HPP
