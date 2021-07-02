@@ -1,12 +1,12 @@
 #include "overrides.hpp"
 
 /**
- * Override the new operator globally for garbage collection. 
+ * Same allocation logic for both new and new[]
 */
-void * operator new(std::size_t size, std::size_t alloc) {
+void * allocation(std::size_t size, const char * file, const std::size_t line) {
     // create new pointer with the size
     void * pointer = malloc(size);
-     std::cout << "Allocating " << size << " bytes of memory at " << pointer << std::endl;
+    std::cout << "Allocating " << size << " bytes of memory at " << pointer << " from " << file << " at line: " << line << std::endl;
 
     // if memory allocation fails, throw bad alloc exception
     if (pointer == nullptr) {
@@ -14,28 +14,52 @@ void * operator new(std::size_t size, std::size_t alloc) {
         throw(exception);
     }
 
-    if (!alloc) {
-        return pointer;
-    }
-
     // create new garbage collector
     GarbageCollector* gc = GarbageCollector::getInstance();
-    gc->allocate(pointer, size);
-
+    gc->allocate(pointer, size, file, line);
+    
     return pointer;
 }
 
-// /**
-//  * Overide the delete operator globally for garbage collection.
-//  * This is optional but more performant. 
-//  */ 
-// void operator delete(void * pointer, std::size_t alloc) {
-//     if (pointer == nullptr) 
-//         return;
+/**
+ * Override the new operator globally for garbage collection. 
+*/
+void * operator new(std::size_t size, const char * file, const std::size_t line) {
+    return allocation(size, file, line);
+}
 
-//     std::cout << "Freeing at " << pointer << std::endl;
-//     // deallocate from garbage collector
-//     GarbageCollector* gc = GarbageCollector::getInstance(); 
-//     free(pointer);
-//     gc->deallocate(pointer);
-// }
+/**
+ * Override the new operator globally for garbage collection. 
+*/
+void * operator new[](std::size_t size, const char * file, const std::size_t line) {
+    return allocation(size, file, line);
+}
+
+/**
+ * Same deallocation logic for delete and delete[]
+*/
+void deallocate(void * pointer) {
+    if (pointer == nullptr) {
+        std::cout << "Attempted to delete nullptr" << std::endl;
+        return;
+    }
+    // deallocate from garbage collector
+    GarbageCollector* gc = GarbageCollector::getInstance(); 
+    gc->deallocate(pointer);
+}
+
+/**
+ * Overide the delete operator globally for garbage collection.
+ * This is optional but more performant. 
+ */ 
+void operator delete(void * pointer) {
+    deallocate(pointer);
+}
+
+/**
+ * Overide the delete operator globally for garbage collection.
+ * This is optional but more performant. 
+ */ 
+void operator delete[](void * pointer, const char * file, int line) {
+    deallocate(pointer);
+}

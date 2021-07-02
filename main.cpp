@@ -3,9 +3,8 @@
 #include "overrides.hpp"
 
 // Macro magic to make it specific to the file 
-#define __ALLOC__ 1
-#define new new(__ALLOC__)
-
+#define new new(__FILE__, __LINE__)
+#define delete std::cout << "Manual delete from " __FILE__ << " at line: " << __LINE__ << std::endl, delete
 // I have no idea why but this makes it work. OPTIMIZE FIGURE OUT ANOTHER WAY.
 GarbageCollector* GarbageCollector::instance;
 
@@ -18,10 +17,10 @@ int main() {
     int *array2 = new int;
     int *array3 = new int;
     int *array5 = new int;
+    int *arrayProper = new int [5];
+    int* reference = arrayProper;
 
-    gc->deallocate(array5);
-
-    std::cout << "hello world" << std::endl;
+    std::cout << "Collect garbage" << std::endl;
     gc->collect();
     return 0;
 }

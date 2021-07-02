@@ -20,7 +20,7 @@ class GarbageCollector {
         ~GarbageCollector(); 
 
         // allocate memory  
-        void allocate(void * pointer, std::size_t size); 
+        void allocate(void * pointer, std::size_t size, const char* file, std::size_t line); 
          // when delete is called deallocate memory from the garbage collector
         void deallocate(void * pointer);
         
@@ -32,6 +32,8 @@ class GarbageCollector {
         typedef struct allocation {
             std::size_t size; 
             bool mark; 
+            const char* file;
+            std::size_t line;
         } allocation;
 
         // temporary hashmap for collecting 

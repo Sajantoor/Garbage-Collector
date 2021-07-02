@@ -2,11 +2,14 @@
 
 GarbageCollector::GarbageCollector() {}
 
-GarbageCollector::~GarbageCollector() {}
+GarbageCollector::~GarbageCollector() {
+    // clears all allocations
+    m_allocations.clear();
+}
 
-void GarbageCollector::allocate(void * pointer, std::size_t size) {
+void GarbageCollector::allocate(void * pointer, std::size_t size, const char* file, std::size_t line) {
     // add to hashmap
-    allocation allocation = {size, false};
+    allocation allocation = {size, false, file, line};
     PointerMap::value_type pair(pointer, allocation);
     m_allocations.insert(pair);
 }
@@ -19,8 +22,8 @@ void GarbageCollector::deallocate(void * pointer) {
         m_allocations.erase(allocation);
     }
 
-    // else it's not in the hashmap, just free
-    delete pointer;
+    // if it's not in hashmap free the pointer, free pointer regardless
+    free(pointer);
 }
 
 void GarbageCollector::collect() {
@@ -35,7 +38,7 @@ void GarbageCollector::collect() {
         root->second.mark = false;
     }
 
-    // scan the stack and mark
+    // scan the stack and mark anything on stack
     while (current <= top) {
         void * pointer = *current;
         std::cout << "Pointer: " << pointer << std::endl;
@@ -43,13 +46,13 @@ void GarbageCollector::collect() {
 		
 		if (allocation != m_allocations.end()) {
 			std::cout << "Found allocation " << pointer << " at " << current << std::endl;
-			allocation->second.mark += 1;
+			allocation->second.mark = true;
 		}
 		// Move to next pointer
 		current++;
     }
 
-    // sweep
+    // sweep anything that's not marked.
     for (PointerMap::iterator root = m_allocations.begin(), next_it = root; root != m_allocations.end(); root = next_it) {
         // https://stackoverflow.com/questions/6092642/how-to-remove-a-key-from-hashmap-while-iterating-over-it
         // need this because removing during iteration causes seg fault? 
@@ -57,8 +60,8 @@ void GarbageCollector::collect() {
         
         if (!root->second.mark && root->first != nullptr) {
             void * pointer = root->first;
-            std::cout << "Releasing " << root->second.size << " bytes at " << root->first << std::endl;
-            delete pointer;
+            std::cout << "Memory leak detected: Releasing " << root->second.size << " bytes at " << root->first << " from " << root->second.file << " at line: " << root->second.line << std::endl;
+            free(pointer);
             m_allocations.erase(root);
         }
     }
