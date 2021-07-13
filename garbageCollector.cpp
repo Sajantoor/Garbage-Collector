@@ -27,9 +27,8 @@ void GarbageCollector::deallocate(void * pointer) {
 }
 
 void GarbageCollector::collect() {
-    // Garbage collector must be intialized at the top of the stack.
-    void * top = this;
-    void ** current = (void **) &top;
+    void* top = this->stackTop;
+    void ** current = (void **)&top;
 
     std::cout << "Collecting from " << current << " to " << top << std::endl;
 
@@ -37,19 +36,19 @@ void GarbageCollector::collect() {
     for (PointerMap::iterator root = m_allocations.begin(); root != m_allocations.end(); root++) {
         root->second.mark = false;
     }
+    
+    for (current; current < top; current++) {
+        void* pointer = *current;
 
-    // scan the stack and mark anything on stack
-    while (current <= top) {
-        void * pointer = *current;
         std::cout << "Pointer: " << pointer << std::endl;
         PointerMap::iterator allocation = m_allocations.find(pointer);
-		
+        std::cout << "Allocation: " << allocation->first << std::endl;
+
+
 		if (allocation != m_allocations.end()) {
-			std::cout << "Found allocation " << pointer << " at " << current << std::endl;
+			std::cout << "Found allocation " << pointer << " at " << pointer << std::endl;
 			allocation->second.mark = true;
 		}
-		// Move to next pointer
-		current++;
     }
 
     // sweep anything that's not marked.
@@ -66,3 +65,7 @@ void GarbageCollector::collect() {
         }
     }
 }  
+
+void GarbageCollector::setStackTop(void * top) {
+    this->stackTop = top;
+}

@@ -9,6 +9,7 @@ class GarbageCollector {
         // private constructor -> Singleton design 
         GarbageCollector();  
         static GarbageCollector* instance;
+        void* stackTop = nullptr;
 
     public: 
         static GarbageCollector* getInstance() {
@@ -26,6 +27,9 @@ class GarbageCollector {
         
         // run mark and sweep algorithm and garbage collect.
         void collect(); 
+
+        // set the top of the stack
+        void setStackTop(void * top);
 
     protected: 
         // memory allocation struct
