@@ -26,8 +26,7 @@ int main(int argc, char **argv) {
 
     int* array = new int[25];
     int* reference = array;
-    
-    printf("%d \n", array[1]);
+    reference[0] = 5;
     
     std::cout << "Collect garbage" << std::endl;
     gc->collect();

@@ -1,4 +1,5 @@
 #include "GarbageCollector.hpp"
+// #define DEBUG // for prints
 
 GarbageCollector::GarbageCollector() {}
 
@@ -8,10 +9,20 @@ GarbageCollector::~GarbageCollector() {
 }
 
 void GarbageCollector::allocate(void * pointer, std::size_t size, const char* file, std::size_t line) {
-    // add to hashmap
+    // add to data to hashmap
     allocation allocation = {size, false, file, line};
     PointerMap::value_type pair(pointer, allocation);
     m_allocations.insert(pair);
+    // update garbage collection size
+    this->size += size;
+
+    // run garbage collection automatically if size is greater than max size
+    if (this->size > this->maxSize) {
+        #ifdef DEBUG
+            std::cout << "Running automatic garbage collection." << std::endl;
+        #endif
+        this->collect();
+    }
 }
 
 void GarbageCollector::deallocate(void * pointer) {
@@ -19,34 +30,40 @@ void GarbageCollector::deallocate(void * pointer) {
     PointerMap::iterator allocation = m_allocations.find(pointer);
 
     if (allocation != m_allocations.end()) {
+        // update size
+        this->size -= allocation->second.size;
         m_allocations.erase(allocation);
     }
 
     // if it's not in hashmap free the pointer, free pointer regardless
     free(pointer);
+    pointer = nullptr;
 }
 
 void GarbageCollector::collect() {
-    void* top = this->stackTop;
-    void ** current = (void **)&top;
-
-    std::cout << "Collecting from " << current << " to " << top << std::endl;
-
     // unmark everything 
     for (PointerMap::iterator root = m_allocations.begin(); root != m_allocations.end(); root++) {
         root->second.mark = false;
     }
-    
-    for (current; current < top; current++) {
+
+    void* top = this->stackTop;
+    void ** current = (void **)&top;
+
+    #ifdef DEBUG 
+        std::cout << "Collecting from " << current << " to " << top << std::endl;
+    #endif
+
+    // go over stack and mark if any pointer is found in stack
+    for (; current < top; current++) {
         void* pointer = *current;
-
-        std::cout << "Pointer: " << pointer << std::endl;
         PointerMap::iterator allocation = m_allocations.find(pointer);
-        std::cout << "Allocation: " << allocation->first << std::endl;
 
-
+        // if alocation is found mark it as it is "reachable"
 		if (allocation != m_allocations.end()) {
-			std::cout << "Found allocation " << pointer << " at " << pointer << std::endl;
+            #ifdef DEBUG 
+			    std::cout << "Found allocation " << pointer << " at " << allocation->second.file << " " << allocation->second.line << std::endl;
+            #endif
+
 			allocation->second.mark = true;
 		}
     }
@@ -59,7 +76,11 @@ void GarbageCollector::collect() {
         
         if (!root->second.mark && root->first != nullptr) {
             void * pointer = root->first;
-            std::cout << "Memory leak detected: Releasing " << root->second.size << " bytes at " << root->first << " from " << root->second.file << " at line: " << root->second.line << std::endl;
+            #ifdef DEBUG
+                std::cout << "Memory leak detected: Releasing " << root->second.size << " bytes at " << root->first << " from " << root->second.file << " at line: " << root->second.line << std::endl;
+            #endif
+            // update size
+            this->size -= root->second.size;
             free(pointer);
             m_allocations.erase(root);
         }

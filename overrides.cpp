@@ -1,4 +1,5 @@
 #include "overrides.hpp"
+// #define DEBUG // for printing
 
 /**
  * Same allocation logic for both new and new[]
@@ -6,7 +7,10 @@
 void * allocation(std::size_t size, const char * file, const std::size_t line) {
     // create new pointer with the size
     void * pointer = malloc(size);
-    std::cout << "Allocating " << size << " bytes of memory at " << pointer << " from " << file << " at line: " << line << std::endl;
+
+    #ifdef DEBUG
+        std::cout << "Allocating " << size << " bytes of memory at " << pointer << " from " << file << " at line: " << line << std::endl;
+    #endif
 
     // if memory allocation fails, throw bad alloc exception
     if (pointer == nullptr) {

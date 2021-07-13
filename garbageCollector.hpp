@@ -11,7 +11,11 @@ class GarbageCollector {
         static GarbageCollector* instance;
         void* stackTop = nullptr;
 
+        unsigned int size = 0; // size threshold to determine when to automatically run garbage collector 
+        unsigned int maxSize = 128; // set size threshold to be 128 bytes 
+
     public: 
+        // get the instance of the garbage collector -> singleton design
         static GarbageCollector* getInstance() {
             if (instance == nullptr)
                     instance = new GarbageCollector();
