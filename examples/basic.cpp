@@ -1,4 +1,5 @@
 #include "../garbageCollection.hpp"
+GarbageCollector* GarbageCollector::instance; 
 
 // allocate int array of size 5
 int* allocate() {

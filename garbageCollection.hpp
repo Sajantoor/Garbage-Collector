@@ -8,7 +8,6 @@
 // Macro magic to make it specific to the file 
 #define new new(__FILE__, __LINE__)
 #define delete std::cout << "Manual delete from " __FILE__ << " at line: " << __LINE__ << std::endl, delete
-GarbageCollector* GarbageCollector::instance;
 
 // Redefine main to include all the neccessary garbage collection stuff.
 // To change return type of main change GC_Main's return type

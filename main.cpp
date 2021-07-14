@@ -1,4 +1,5 @@
 #include "garbageCollection.hpp"
+GarbageCollector* GarbageCollector::instance; 
 
 int main(int argc, char **argv) {
     /* 
