@@ -1,4 +1,4 @@
-#include "../main.hpp"
+#include "../garbageCollection.hpp"
 
 // allocate int array of size 5
 int* allocate() {
@@ -6,7 +6,7 @@ int* allocate() {
     return array;
 }
 
-int gc_main(int argc, char **argv) {
+int main(int argc, char **argv) {
     GarbageCollector* gc = GarbageCollector::getInstance();
     gc->setStackTop(&argc);
 

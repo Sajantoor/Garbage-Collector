@@ -15,14 +15,17 @@ void GarbageCollector::allocate(void * pointer, std::size_t size, const char* fi
     m_allocations.insert(pair);
     // update garbage collection size
     this->size += size;
-
-    // run garbage collection automatically if size is greater than max size
-    if (this->size > this->maxSize) {
-        #ifdef DEBUG
-            std::cout << "Running automatic garbage collection." << std::endl;
-        #endif
-        this->collect();
-    }
+    
+    // Don't need automatic garbage collection when trying to look only for memory leaks
+    #ifndef LEAK 
+        // run garbage collection automatically if size is greater than max size
+        if (this->size > this->maxSize) {
+            #ifdef DEBUG
+                std::cout << "Running automatic garbage collection." << std::endl;
+            #endif
+            this->collect();
+        }
+    #endif
 }
 
 void GarbageCollector::deallocate(void * pointer) {
@@ -77,7 +80,11 @@ void GarbageCollector::collect() {
         if (!root->second.mark && root->first != nullptr) {
             void * pointer = root->first;
             #ifdef DEBUG
-                std::cout << "Memory leak detected: Releasing " << root->second.size << " bytes at " << root->first << " from " << root->second.file << " at line: " << root->second.line << std::endl;
+                std::cout << "Memory leak detected: Bytes " << root->second.size << " at " << root->first << " from " << root->second.file << ":" << root->second.line << std::endl;
+            #endif
+
+            #ifdef LEAK 
+                std::cout << "Memory leak detected: Bytes " << root->second.size << " at " << root->first << " from " << root->second.file << ":" << root->second.line << std::endl;
             #endif
             // update size
             this->size -= root->second.size;

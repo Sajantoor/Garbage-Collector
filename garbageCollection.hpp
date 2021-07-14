@@ -1,5 +1,5 @@
-#ifndef MAIN_HPP
-#define MAIN_HPP
+#ifndef GARBAGE_COLLECTION_HPP
+#define GARBAGE_COLLECTION_HPP
 
 // This is required for the garbage collection 
 #include "GarbageCollector.hpp"
@@ -11,18 +11,18 @@
 GarbageCollector* GarbageCollector::instance;
 
 // Redefine main to include all the neccessary garbage collection stuff.
-
-/*
-int gc_main(int argc, char **argv);
-
+// To change return type of main change GC_Main's return type
+int GC_Main(int argc, char** argv);
 #define main(...) \
   main(int argc, char** argv) { \
     GarbageCollector* gc = GarbageCollector::getInstance(); \
     gc->setStackTop(&argc); \
-    return gc_main(argc, argv); \
+    return GC_Main(argc, argv); \
   }; \
-  int gc_main(int argc, char **argv)
-*/ 
+  int GC_Main(__VA_ARGS__)
+
+int GC_Main(int argc, char **argv);
+
 // Last line required for garbage collection ^ 
 
-#endif // MAIN_HPP
+#endif // GARBAGE_COLLECTION_HPP
