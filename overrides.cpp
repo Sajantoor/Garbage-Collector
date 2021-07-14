@@ -18,7 +18,7 @@ void * allocation(std::size_t size, const char * file, const std::size_t line) {
         throw(exception);
     }
 
-    // create new garbage collector
+    // get garbage collector
     GarbageCollector* gc = GarbageCollector::getInstance();
     gc->allocate(pointer, size, file, line);
     
@@ -64,6 +64,6 @@ void operator delete(void * pointer) {
  * Overide the delete operator globally for garbage collection.
  * This is optional but more performant. 
  */ 
-void operator delete[](void * pointer, const char * file, int line) {
+void operator delete[](void * pointer) {
     deallocate(pointer);
 }

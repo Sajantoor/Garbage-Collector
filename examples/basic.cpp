@@ -17,8 +17,7 @@ int main(int argc, char **argv) {
     }
 
     int* array = new int[25];
-    int* reference = array;
-    reference[0] = 5;
+    array = new int[50];
     
     gc->collect();
     return 0;

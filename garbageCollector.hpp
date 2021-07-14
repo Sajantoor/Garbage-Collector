@@ -4,6 +4,9 @@
 #include <iostream> 
 #include <map> 
 
+// Max memory size in bytes
+#define SIZE 512;
+
 class GarbageCollector { 
     private: 
         // private constructor -> Singleton design 
@@ -12,7 +15,7 @@ class GarbageCollector {
         void* stackTop = nullptr;
 
         unsigned int size = 0; // size threshold to determine when to automatically run garbage collector 
-        unsigned int maxSize = 128; // set size threshold to be 128 bytes 
+        unsigned int maxSize = SIZE; // set size threshold to be 128 bytes 
 
     public: 
         // get the instance of the garbage collector -> singleton design
